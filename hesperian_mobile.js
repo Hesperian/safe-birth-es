@@ -134,10 +134,11 @@ $("div:jqmData(role='page')").live("pagebeforeshow",function(event, ui) {
 
 $("div:jqmData(role='page')").live("pageshow",function(event) {
   var thisPage = $(this).attr("id");
-
+/*
   if(HM.gaAvailable()) {
     window.ga.trackView(thisPage);
   }
+  */
 
 	if ($(this).attr("swipe") == "true") {
 		var el = $("div.sequence-bar-bottom",this);
