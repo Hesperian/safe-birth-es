@@ -7,7 +7,7 @@ t[h]}if(f.isEmptyObject(t)){var u=s.handle;u&&(u.elem=null),delete s.events,dele
 
 
 // Hesperian Mobile globals
-var HM = { 
+var HM = {
   platform: "", // Android, iPhone
   // Return the content section for the given jQuery page object,
   // for a transition from previousSectionID
@@ -17,7 +17,7 @@ var HM = {
       if( (sectionList[i] === pageID) || (sectionList[i] === '*')) // Glob matches all.
         return true;
     }
-    
+
     return false;
   },
   getContentSectionForPage: function(page, previousSectionID)
@@ -36,10 +36,28 @@ var HM = {
     //console.log("getContentSectionForPage("+pageID + ", " + previousSectionID + ") returns: " + section);
     return section;
   },
-  
+
   // Cache of our current section (for the "up" button). KLOOGE: this will only work in the single page app -
   // on the load of a new html page, this will be reset, losing history.
-  currentSection: null
+  currentSection: null,
+
+  // test to see if we can call window.ga methods. Will do a JIT initialization.
+  // both mobileinit or deviceready are too soon to init, evidently.
+  gaAvailable: (function() {
+    var gaInited = false;
+    return function() {
+      if(!window.ga) {
+        return false;
+      }
+
+      if(!gaInited) {
+        window.ga.startTrackerWithId('UA-91729174-2', 30);
+        gaInited = true;
+      }
+
+      return window.ga;
+    };
+  })()
 };
 
 $(document).bind("mobileinit", function(){
@@ -56,7 +74,7 @@ $("div:jqmData(role='page')").live('pagebeforecreate',function(event){
 				if (seq_length == 0) {
 					$("div.sequence-dots",this).css("margin-top","-=10px");
 					return;
-				} 
+				}
 				var pos = 0;
 				while (pos < seq_length) {
 					if (pos + 1 == seq_position) {
@@ -78,7 +96,7 @@ $("div:jqmData(role='page')").live('pagebeforecreate',function(event){
   $("a.external-site", this).each(function() {
     var a = $(this),
       href = a.attr('href');
-      
+
     if( a.attr('target') === '_blank') {
       a.bind('tap', function() {
         window.open(href, "_system");
@@ -103,6 +121,8 @@ document.addEventListener("deviceready", function() {
         $("body").addClass("hm-phonegap-" + platform);
         HM.platform = platform;
       }
+
+
 }, false);
 
 $("div:jqmData(role='page')").live("pagebeforeshow",function(event, ui) {
@@ -113,6 +133,12 @@ $("div:jqmData(role='page')").live("pagebeforeshow",function(event, ui) {
 });
 
 $("div:jqmData(role='page')").live("pageshow",function(event) {
+  var thisPage = $(this).attr("id");
+
+  if(HM.gaAvailable()) {
+    window.ga.trackView(thisPage);
+  }
+
 	if ($(this).attr("swipe") == "true") {
 		var el = $("div.sequence-bar-bottom",this);
 	/*	if ( $(window).scrollTop() + $(window).height() > el.offset().top ) {
@@ -129,21 +155,21 @@ $("div:jqmData(role='page')").live("pageshow",function(event) {
 	}
 });
 
-/* *** Commenting out swiping code
 //binds swipe events to the specified elements and maps them to clicks on the previous and next links based on them having the appropriate class
 function swipeToClick(el) {
 	$(el).bind("swiperight swipeleft", function(event) {
+    var href;
 		event.preventDefault();
 		if (event.type == "swipeleft") {
-			var href = $("a.seq-nav-button-right:first",this).attr("href");
-			if (href != "javascript:;")
+			href = $("a.seq-nav-button-right:first",this).attr("href");
+			if (href !== "javascript:;")
 				$.mobile.changePage(href,"none");
 		}
 		else if (event.type == "swiperight") {
-			var href = $("a.seq-nav-button-left:first",this).attr("href");
-			if (href != "javascript:;")
+			href = $("a.seq-nav-button-left:first",this).attr("href");
+			if (href !== "javascript:;")
 				$.mobile.changePage(href,"none");
-		}		
+		}
 	});
 }
 
@@ -154,7 +180,7 @@ $("div:jqmData(role='page')").live("pagecreate",function(event) {
 	if (page.attr("swipe") == "true")
 		swipeToClick(page);
 });
-** end swiping code */
+
 
 // jquery mobile configuration
 HM.contentsections = {
