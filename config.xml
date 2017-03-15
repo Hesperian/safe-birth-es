@@ -39,7 +39,7 @@
 
     <plugin name="cordova-plugin-inappbrowser" spec="1.6.1"/>
 
-    <plugin name="cordova-plugin-google-analytics" spec="1.7.4"/>
+    <plugin name="cordova-plugin-google-analytics" spec="1.0.0"/>
 
     <plugin name="cordova-plugin-statusbar" source="npm" spec="2.2.1"/>
     <preference name="StatusBarOverlaysWebView" value="false" />
